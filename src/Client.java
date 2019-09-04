@@ -27,7 +27,8 @@ public class Client {
 
     public void setPixelValue(int x, int y, int r, int g, int b) {
         writeBytes(new byte[] {
-                (byte) x,
+                // invert x
+                (byte) (x == 255 ? 255 : 15 - x),
                 (byte) y,
                 (byte) r,
                 (byte) g,
