@@ -1,5 +1,7 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 
 public class Main {
 
@@ -8,51 +10,60 @@ public class Main {
         Client client = new Client("192.168.0.28", 28891);
         System.out.println("Connected.");
 
-        int[][] colours = {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}};
-        int counter = 0;
-
-        for (int i = 0; i < 16; i++) {
-            for (int j = 0; j < 16; j++) {
-                int[] colour = colours[counter++ % 3];
-            }
-        }
-        client.show();
-
         Robot robot = null;
         try {
             robot = new Robot();
         } catch (AWTException e) {
             e.printStackTrace();
         }
+
+        BufferedImage oldScreenshot = new BufferedImage(16, 16, BufferedImage.TYPE_INT_RGB);
         while (true) {
             Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
             Rectangle rect = new Rectangle(mouseLoc.x - 8, mouseLoc.y - 8, 16, 16);
             BufferedImage screenshot = robot.createScreenCapture(rect);
+            int numUpdated = 0;
 
             for (int y = 0; y < 16; y++) {
                 for (int x = 0; x < 16; x++) {
                     int rgb = screenshot.getRGB(x, y);
+                    int oldRgb = oldScreenshot.getRGB(x, y);
 
-                    int r = (rgb >> 16) & 0xFF;
-                    int g = (rgb >> 8) & 0xFF;
-                    int b = rgb & 0xFF;
+                    if (rgb != oldRgb) {
+                        // update pixel
+                        int r = (rgb >> 16) & 0xFF;
+                        int g = (rgb >> 8) & 0xFF;
+                        int b = rgb & 0xFF;
 
-                    client.setPixelValue(x, y, r, g, b);
+                        client.setPixelValue(x, y, r, g, b);
+
+                        numUpdated++;
+                    }
                 }
             }
 
-            client.show();
+            if (numUpdated > 0) {
+                client.show();
+            }
 
             try {
-                Thread.sleep(100);
+                Thread.sleep(32);
             }
             catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            oldScreenshot = deepCopy(screenshot);
         }
 
         //System.out.println("Finished. Exiting...");
         //client.close();
     }
 
+    private static BufferedImage deepCopy(BufferedImage bi) {
+        ColorModel cm = bi.getColorModel();
+        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+        WritableRaster raster = bi.copyData(null);
+        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+    }
 }
