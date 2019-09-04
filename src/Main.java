@@ -11,10 +11,10 @@ public class Main {
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
                 int[] colour = colours[counter++ % 3];
-                byte[] bytes = {(byte) i, (byte) j, (byte) colour[0], (byte) colour[1], (byte) colour[2]};
-                client.writeBytes(bytes);
+                client.setPixelValue(i, j, colour[0], colour[1], colour[2]);
             }
         }
+        client.show();
 
         System.out.println("Finished. Exiting...");
         client.close();

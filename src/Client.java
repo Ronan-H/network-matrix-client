@@ -25,6 +25,20 @@ public class Client {
         }
     }
 
+    public void setPixelValue(int x, int y, int r, int g, int b) {
+        writeBytes(new byte[] {
+                (byte) x,
+                (byte) y,
+                (byte) r,
+                (byte) g,
+                (byte) b,
+        });
+    }
+
+    public void show() {
+        setPixelValue(255, 255, 255, 255, 255);
+    }
+
     public void close() {
         try {
             out.close();
