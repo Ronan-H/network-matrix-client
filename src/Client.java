@@ -1,28 +1,33 @@
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
 
 public class Client {
     private Socket sock;
-    private PrintWriter out;
+    private DataOutputStream out;
 
     public Client(String host, int port) {
         try {
             sock = new Socket(host, port);
-            out = new PrintWriter(sock.getOutputStream(), true);
+            out = new DataOutputStream(sock.getOutputStream());
         }
         catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void writeString(String s) {
-        out.println(s);
+    public void writeBytes(byte[] bytes) {
+        try {
+            out.write(bytes);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void close() {
-        out.close();
         try {
+            out.close();
             sock.close();
         } catch (IOException e) {
             e.printStackTrace();
