@@ -8,6 +8,7 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Starting...");
         Client client = new Client("192.168.0.28", 28891);
+        MatrixController matrixController = new MatrixController(client);
         System.out.println("Connected.");
 
         Robot robot = null;
@@ -22,6 +23,13 @@ public class Main {
             Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
             Rectangle rect = new Rectangle(mouseLoc.x - 8, mouseLoc.y - 8, 16, 16);
             BufferedImage screenshot = robot.createScreenCapture(rect);
+
+            BufferedImage screenshotCropped = new BufferedImage(16, 16, BufferedImage.TYPE_INT_RGB);
+            Graphics graphics = screenshotCropped.getGraphics();
+            graphics.drawImage(screenshot, 0, 0, 16, 16, null);
+            graphics.dispose();
+            screenshot = screenshotCropped;
+
             int numUpdated = 0;
 
             for (int y = 0; y < 16; y++) {
@@ -35,7 +43,7 @@ public class Main {
                         int g = (rgb >> 8) & 0xFF;
                         int b = rgb & 0xFF;
 
-                        client.setPixelValue(x, y, r, g, b);
+                        matrixController.setPixelValue(x, y, r, g, b);
 
                         numUpdated++;
                     }
@@ -43,7 +51,7 @@ public class Main {
             }
 
             if (numUpdated > 0) {
-                client.show();
+                matrixController.show();
             }
 
             try {
